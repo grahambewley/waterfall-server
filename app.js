@@ -15,6 +15,7 @@ const server = http.createServer(app);
 const io = socketIo(server);
 
 const gameStatus = {
+  name: 'Trash Palace Waterfall',
   playerTurnIndex: 0,
   players: [
     {
