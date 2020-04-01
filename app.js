@@ -97,7 +97,7 @@ const determineOutcome = (pulledCard) => {
     }
 
     //**** ACE = WATERFALL ***//
-    else if(denomination === 'K') {
+    else if(denomination === 'A') {
       outcome = `${gameStatus.players[gameStatus.playerTurnIndex].name} starts a Waterfall!`;
     }
   }
