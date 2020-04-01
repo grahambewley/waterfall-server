@@ -1,9 +1,8 @@
 const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
-const axios = require("axios");
-
 const index = require("./routes/index");
+const { determineOutcome } = require('./gameLogic');
 
 const app = express();
 const port = process.env.PORT || 4001;
@@ -25,6 +24,15 @@ const gameStatus = {
     },
     {
       name: 'Jordan',
+      qMaster: false,
+      tMaster: false
+    },{
+      name: 'John',
+      qMaster: false,
+      tMaster: false
+    },
+    {
+      name: 'Joe',
       qMaster: false,
       tMaster: false
     }
@@ -54,93 +62,6 @@ const gameStatus = {
   lastPulledCardOutcome: ''
 }
 
-const determineOutcome = (pulledCard) => {
-  const denomination = pulledCard.charAt(0);
-  const suit = pulledCard.charAt(1);
-
-  console.log("Card denomination " + denomination);
-  console.log("Card suit " + suit);
-
-  let outcome = '';
-
-  // If this is a face card...
-  if(isNaN(denomination)) {
-    //**** JACK = THUMB MASTER ***//
-    if(denomination === 'J') {
-      outcome = `${gameStatus.players[gameStatus.playerTurnIndex].name} is now Thumb Master!`;
-      
-      gameStatus.players.forEach(player => {
-        player.tMaster = false;
-      });
-      
-      gameStatus.players[gameStatus.playerTurnIndex].tMaster = true;
-    }
-
-    //**** QUEEN = QUESTION MASTER ***//
-    else if(denomination === 'Q') {
-      outcome = `${gameStatus.players[gameStatus.playerTurnIndex].name} is now Question Master!`;
-      
-      gameStatus.players.forEach(player => {
-        player.qMaster = false;
-      });
-      
-      gameStatus.players[gameStatus.playerTurnIndex].qMaster = true;
-    }
-
-    //**** KING = RULE MASTER ***//
-    else if(denomination === 'K') {
-      outcome = `${gameStatus.players[gameStatus.playerTurnIndex].name} makes a new Rule!`;
-      
-      // TODO:
-      // Request rule from this player
-      // Update rules list
-    }
-
-    //**** ACE = WATERFALL ***//
-    else if(denomination === 'A') {
-      outcome = `${gameStatus.players[gameStatus.playerTurnIndex].name} starts a Waterfall!`;
-    }
-  }
-  // Otherwise this is a numbered card
-  else {
-    if(parseInt(denomination) <= 6) {
-      // Determine red or black
-      if(suit === 'D' || suit === 'H') {
-        outcome = `${gameStatus.players[gameStatus.playerTurnIndex].name} takes ${denomination} drinks!`;
-      }
-      else if(suit === 'C' || suit === 'S') {
-        outcome = `${gameStatus.players[gameStatus.playerTurnIndex].name} gives out ${denomination} drinks!`;
-      }
-    }
-
-    //**** 7 = HEAVEN ***//
-    else if(parseInt(denomination) === 7) {
-      outcome = `7 is Heaven! Point to the sky!`;
-    }
-
-    //**** 8 = DATE ***//
-    else if(parseInt(denomination) === 8) {
-      outcome = `8 is Date! ${gameStatus.players[gameStatus.playerTurnIndex].name} picks a date!`;
-
-      // TODO:
-      // Request date from this player
-      // Update dates in 
-    }
-
-    //**** 9 = RHYME ***//
-    else if(parseInt(denomination) === 9) {
-      outcome = `9 is Rhyme Time! ${gameStatus.players[gameStatus.playerTurnIndex].name} picks a word to rhyme!`;
-    }
-
-    //**** 10 = CATEGORIES ***//
-    else if(parseInt(denomination) === 10) {
-      outcome = `10 is Categories! ${gameStatus.players[gameStatus.playerTurnIndex].name} picks a category!`;
-    }
-  }
-
-  return outcome;
-}
-
 io.on("connection", socket => {
   // When a new client connects, log to console and emit them the current gameStatus
   console.log("New client connected");
@@ -162,7 +83,7 @@ io.on("connection", socket => {
     gameStatus.lastPulledCard = pulledCard;
 
     // Determine and set the outcome of this card
-    gameStatus.lastPulledCardOutcome = determineOutcome(pulledCard);
+    gameStatus.lastPulledCardOutcome = determineOutcome(pulledCard, gameStatus);
 
     // Switch to next player's turn
     if(gameStatus.playerTurnIndex === gameStatus.players.length - 1) {
