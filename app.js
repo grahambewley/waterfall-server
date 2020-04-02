@@ -1,12 +1,16 @@
 const express = require("express");
+const cors = require('cors');
+
 const http = require("http");
 const socketIo = require("socket.io");
 const index = require("./routes/index");
-const { determineOutcome } = require('./gameLogic');
+const { determineOutcome } = require('./utils/gameLogic');
 
 const app = express();
 const port = process.env.PORT || 4001;
 
+app.use(cors());
+app.use(express.json());
 app.use(index);
 
 const server = http.createServer(app);
