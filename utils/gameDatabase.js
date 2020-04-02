@@ -20,16 +20,13 @@ const createNewGame = async (gameName, password) => {
     }   
 }
 
-const validateGameJoin = async (shortId, password, playerName) => {
+const validateGame = async (shortId, password) => {
     
     try {
         // Check to see if game exists with provided shortId
         // Since password was set to select:false in the schema, it's not returned by default. 
         // Using .select() on the .findOne method allows us to specify that we want password anyway.
         const game = await Game.findOne({ shortId }).select('+password');
-        
-        console.log("Found game with the provided shortId", game);
-
         // If not, return error
         if(!game) {
             return { error: 'No game exists with that ID!' };
@@ -40,9 +37,72 @@ const validateGameJoin = async (shortId, password, playerName) => {
         if(passwordsMatch) {
             return { gameData: game }
         } else {
-            return { error: 'Password was incorrect!' }
+            return { error: 'Password is incorrect!' }
         }
 
+    } catch(error) {
+        console.error(error);
+        return { error: 'Unexpected error logging into game' };
+    }
+}
+
+const addPlayerToGame = async (shortId, player_name, player_id) => {
+    
+    try {
+        // validate the data
+        if(!player_name || !shortId || !player_id) {
+            return {
+                error: 'Player Name, Player ID and Game ID are required!'
+            }
+        }
+        
+        // Get this game from DB
+        const game = await Game.findOne({ shortId });
+        // Filter the players array to see if there is a player with this name already
+        const matchingPlayers = game.players.filter(player => {
+            return player.player_id === player_id;
+        });
+        // If there is, return error
+        if(matchingPlayers.length > 0) {
+            return {
+                error: 'Player already exists with that ID!'
+            }
+        }
+        // If not, update game to include player
+        const newPlayer = { player_name, player_id };
+        await Game.findOneAndUpdate(
+            // This filter selects the document in general
+            { shortId },
+            // Add to the players array -- addToSet adds a unique element to an array
+            // alternatively, $push would add the element no matter what
+            { $addToSet: { players: newPlayer } }
+        )
+        return { newPlayer };
+    } catch(error) {
+        console.error("Error adding player to game, ", error);
+        return {
+            error: 'Error adding player to game'
+        }
+    }
+}
+
+const findUserInGame = async (shortId, player_id) => {
+    try {
+        const game = await Game.findOne({ shortId });
+        
+        if(!game) {
+            return { error: 'No game exists with that ID!' };
+        }
+        
+        const user = game.players.find(player => player.player_id === player_id);
+
+        if(user) {
+            return {
+                gameStatus: game
+            }
+        } else {
+            return { error: 'User not found in game!' }
+        }
     } catch(error) {
         console.error(error);
         res.status(500).send('Error logging in user');
@@ -51,5 +111,7 @@ const validateGameJoin = async (shortId, password, playerName) => {
 
 module.exports = {
     createNewGame,
-    validateGameJoin
+    validateGame,
+    addPlayerToGame,
+    findUserInGame
 }

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { createNewGame, validateGameJoin } = require('../utils/gameDatabase');
+const { createNewGame, validateGame, addPlayerToGame } = require('../utils/gameDatabase');
 
 router.get("/", (req, res) => {
   res.send({ response: "I am alive" }).status(200);
@@ -19,18 +19,20 @@ router.post('/createGame', async (req, res) => {
   
 });
 
-router.post('/joinGame', async (req, res) => {
-  const { shortId, password, playerName } = req.body;
+router.post('/addPlayerToGame', async (req, res) => {
+  const { shortId, player_name, player_id } = req.body;
+
+  const newPlayer = await addPlayerToGame(shortId, player_name, player_id);
+  res.send( newPlayer );
+
+})
+
+router.post('/validate', async (req, res) => {
+  const { shortId, password } = req.body;
   
   try {
-    const response = await validateGameJoin(shortId, password, playerName);
-
-    console.log("Response from trying to validate game id and PW: ", response);
-    // if response.error -- something was incorrect, couldn't join
-
-    // else -- socket.io join this game
-
-    res.send('Hello there').status(200);
+    const response = await validateGame(shortId, password);
+    res.send(response).status(200);
   } catch(error) {
     console.error(error);
     res.send('Error joining  user', error).status(401);
