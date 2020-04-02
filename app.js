@@ -5,7 +5,7 @@ const http = require("http");
 const socketIo = require("socket.io");
 const index = require("./routes/index");
 const { determineOutcome } = require('./utils/gameLogic');
-const { findUserInGame } = require('./utils/gameDatabase');
+const { findUserInGame, updateGameStatus } = require('./utils/gameDatabase');
 
 const app = express();
 const port = process.env.PORT || 4001;
@@ -20,7 +20,7 @@ const io = socketIo(server);
 
 // const gameStatus = {
 //   name: 'Trash Palace Waterfall',
-//   playerTurnIndex: 0,
+//   turnIndex: 0,
 //   players: [
 //     {
 //       name: 'Graham',
@@ -72,29 +72,39 @@ io.on("connection", socket => {
   console.log("New client connected");
   // socket.emit('currentGameStatus', gameStatus);
   
-  socket.on('takeTurn', pulledCard => {
-    console.log('Card pulled: ', pulledCard);
+  socket.on('takeTurn', async (data) => {
+    console.log('Card pulled: ', data.pulledCard);
+    console.log("Room to pull card in: ", data.shortId);
+
+    // get gameStatus from this room
+    const res = await findUserInGame(data.shortId, data.player_id);
+
+    if(res.error) {
+      console.log(`Error pulling card from ${data.shortId} for user ${data.player_id}`);
+      return error;
+    }
+    let tempStats = res.gameStatus;
 
     // Remove this card from the deck
-    const newUnplayedCards = gameStatus.unplayedCards.filter(card => {
-      return card != pulledCard;
+    const tempUnplayedCards = tempStats.unplayedCards.filter(card => {
+      return card != data.pulledCard;
     });
-    gameStatus.unplayedCards = newUnplayedCards;
-
+    tempStats.unplayedCards = tempUnplayedCards;
     // Set the last played card
-    gameStatus.lastPulledCard = pulledCard;
-
+    tempStats.lastPulledCard = data.pulledCard;
     // Determine and set the outcome of this card
-    gameStatus.lastPulledCardOutcome = determineOutcome(pulledCard, gameStatus);
-
+    tempStats = determineOutcome(data.pulledCard, tempStats);
     // Switch to next player's turn
-    if(gameStatus.playerTurnIndex === gameStatus.players.length - 1) {
-      gameStatus.playerTurnIndex = 0;
+    if(tempStats.turnIndex === tempStats.players.length - 1) {
+      tempStats.turnIndex = 0;
     } else {
-      gameStatus.playerTurnIndex = gameStatus.playerTurnIndex + 1;
+      tempStats.turnIndex = tempStats.turnIndex + 1;
     }
 
-    io.emit('currentGameStatus', gameStatus);
+    // Set updated game stats
+    const response = await updateGameStatus(data.shortId, tempStats);
+
+    io.in(data.shortId).emit('currentGameStatus', response.gameStatus);
   });
 
   socket.on('join', async ({ shortId, player_id, player_name }, callback) => {
@@ -105,8 +115,7 @@ io.on("connection", socket => {
     }
     
     socket.join(shortId);
-    // socket.emit('message', generateMessage('Admin', 'Welcome!'))
-    socket.broadcast.to(shortId).emit('message', `${player_name} has joined`);
+    socket.to(shortId).emit('currentGameStatus', gameStatus);
     callback({ gameStatus });
   });
 

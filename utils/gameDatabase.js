@@ -105,7 +105,39 @@ const findUserInGame = async (shortId, player_id) => {
         }
     } catch(error) {
         console.error(error);
-        res.status(500).send('Error logging in user');
+        return { error: 'Unexpected error finding user' };
+    }
+}
+
+const updateGameStatus = async (shortId, gameStatus) => {
+
+    const { turnIndex, unplayedCards, lastPulledCard, lastPulledCardOutcome, players } = gameStatus
+
+    try {
+        const gameStatus = await Game.findOneAndUpdate(
+            // Find game by shortId
+            { shortId },
+            // MongoDB operator $pull - pulls element from product array
+            // "Pull from products array where the product field is set to the product ID"
+            { 
+                turnIndex, 
+                unplayedCards, 
+                lastPulledCard, 
+                lastPulledCardOutcome,
+                players
+            },
+            // Make sure we're always getting back the updated version of the cart - not the old version of the cart
+            { new: true }
+        );
+
+        if(gameStatus) {
+            return { gameStatus }
+        } else {
+            return { error: 'Unable to update game status' };
+        }
+    } catch(error) {
+        console.error(error);
+        return { error: 'Unexpected error updating game' };
     }
 }
 
@@ -113,5 +145,6 @@ module.exports = {
     createNewGame,
     validateGame,
     addPlayerToGame,
-    findUserInGame
+    findUserInGame,
+    updateGameStatus
 }

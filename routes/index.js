@@ -23,8 +23,8 @@ router.post('/addPlayerToGame', async (req, res) => {
   const { shortId, player_name, player_id } = req.body;
 
   const newPlayer = await addPlayerToGame(shortId, player_name, player_id);
+  
   res.send( newPlayer );
-
 })
 
 router.post('/validate', async (req, res) => {
