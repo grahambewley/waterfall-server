@@ -1,12 +1,11 @@
 const mongoose = require('mongoose');
 const randomString = require('randomstring');
-
 const { String, Number, Boolean } = mongoose.Schema.Types;
 
 const GameSchema = new mongoose.Schema({
     shortId: {
         type: String,
-        default: randomString.generate(5)
+        required: true
     },
     name: {
         type: String,

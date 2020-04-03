@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const Game =  require('../models/Game');
 const connectDb = require('./connectDb');
+const randomString = require('randomstring');
 
 connectDb();
 
@@ -10,6 +11,7 @@ const createNewGame = async (gameName, password) => {
         const hash = await bcrypt.hash(password, 10);
 
         const newGame = await new Game({
+            shortId: randomString.generate(5),
             name: gameName,
             password: hash
         }).save();
