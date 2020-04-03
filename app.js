@@ -9,23 +9,23 @@ const { findUserInGame, updateGameStatus } = require('./utils/gameDatabase');
 const app = express();
 const port = process.env.PORT || 4001;
 
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+app.use(cors({
+    origin: 'https://waterfall.beer',
+    allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
- // Add this
- if (req.method === 'OPTIONS') {
+app.options('*', cors())
 
-      res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, OPTIONS');
-      res.header('Access-Control-Max-Age', 120);
-      return res.status(200).json({});
-  }
 
-  next();
-
+app.all('', function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "http://localhost");
+    res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    //Auth Each API Request created by user.
+    next();
 });
 
-app.use(cors());
+
 app.use(express.json());
 app.use(index);
 
