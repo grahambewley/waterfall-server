@@ -1,5 +1,5 @@
 const express = require("express");
-
+const cors = require('cors');
 const http = require("http");
 const socketIo = require("socket.io");
 const index = require("./routes/index");
@@ -9,18 +9,9 @@ const { findUserInGame, updateGameStatus } = require('./utils/gameDatabase');
 const app = express();
 const port = process.env.PORT || 4001;
 
-
-
+app.use(cors());
 app.use(express.json());
 app.use(index);
-
-app.use(
-  cors({
-      credentials: true,
-      origin: true
-  })
-);
-app.options('*', cors());
 
 const server = http.createServer(app);
 
