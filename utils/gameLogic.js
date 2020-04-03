@@ -83,7 +83,6 @@ const determineOutcome = (pulledCard, gameStatus) => {
 
     gameStatus.lastPulledCardOutcome = outcome;
 
-    console.log('[gamelogic] Updating gameStatus to ', gameStatus);
     return gameStatus;
 }
 

@@ -30,6 +30,10 @@ const GameSchema = new mongoose.Schema({
                 type: Boolean,
                 default: false
             },
+            player_isOffline: {
+                type: Boolean,
+                default: false
+            },
             player_id: {
                 type: String,
                 default: randomString.generate(7)

@@ -48,7 +48,7 @@ const validateGame = async (shortId, password) => {
     }
 }
 
-const addPlayerToGame = async (shortId, player_name, player_id, player_isAdmin) => {
+const addPlayerToGame = async (shortId, player_name, player_id, player_isAdmin, player_isOffline) => {
     
     try {
         // validate the data
@@ -71,7 +71,7 @@ const addPlayerToGame = async (shortId, player_name, player_id, player_isAdmin) 
             }
         }
         // If not, update game to include player
-        const newPlayer = { player_name, player_isAdmin, player_id };
+        const newPlayer = { player_name, player_isAdmin, player_isOffline, player_id };
         await Game.findOneAndUpdate(
             // This filter selects the document in general
             { shortId },
@@ -80,6 +80,46 @@ const addPlayerToGame = async (shortId, player_name, player_id, player_isAdmin) 
             { $addToSet: { players: newPlayer } }
         )
         return { newPlayer };
+    } catch(error) {
+        console.error("Error adding player to game, ", error);
+        return {
+            error: 'Error adding player to game'
+        }
+    }
+}
+
+const removePlayer = async (shortId, player_id) => {
+    try {
+        // validate the data
+        if(!shortId || !player_id) {
+            return {
+                error: 'Player ID and Game ID are required!'
+            }
+        }
+        
+        // Get this game from DB
+        const game = await Game.findOne({ shortId });
+        
+        const matchingPlayers = game.players.filter(player => {
+            return player.player_id === player_id;
+        });
+        // If there is no matching player, return error
+        if(matchingPlayers.length === 0) {
+            return {
+                error: 'No player in this game with that ID!'
+            }
+        }
+
+        const updatedGame = await Game.findOneAndUpdate(
+            // Find cart according to user ID
+            { shortId },
+            // MongoDB operator $pull - pulls element from product array
+            // "Pull from products array where the product field is set to the product ID"
+            { $pull: { players: { player_id: player_id } } },
+            // Make sure we're always getting back the updated version of the cart - not the old version of the cart
+            { new: true }
+        )
+        return { updatedGame };
     } catch(error) {
         console.error("Error adding player to game, ", error);
         return {
@@ -147,6 +187,7 @@ module.exports = {
     createNewGame,
     validateGame,
     addPlayerToGame,
+    removePlayer,
     findUserInGame,
     updateGameStatus
 }

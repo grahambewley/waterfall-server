@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { createNewGame, validateGame, addPlayerToGame } = require('../utils/gameDatabase');
+const { createNewGame, validateGame, addPlayerToGame, removePlayer } = require('../utils/gameDatabase');
 
 router.get("/", (req, res) => {
   res.send({ response: "I am alive" }).status(200);
@@ -20,10 +20,17 @@ router.post('/createGame', async (req, res) => {
 });
 
 router.post('/addPlayerToGame', async (req, res) => {
-  const { shortId, player_name, player_id, player_isAdmin } = req.body;
+  const { shortId, player_name, player_id, player_isAdmin, player_isOffline } = req.body;
 
-  const newPlayer = await addPlayerToGame(shortId, player_name, player_id, player_isAdmin);
-  res.send( newPlayer );
+  const newPlayer = await addPlayerToGame(shortId, player_name, player_id, player_isAdmin, player_isOffline);
+  res.send( newPlayer ).status(200);
+})
+
+router.post('/removePlayer', async (req, res) => {
+  const { shortId, player_id } = req.body;
+
+  const updatedGame = await removePlayer(shortId, player_id);
+  res.send( updatedGame ).status(200);
 
 })
 
@@ -37,7 +44,6 @@ router.post('/validate', async (req, res) => {
     console.error(error);
     res.send('Error joining  user', error).status(401);
   }
-  
 });
 
 module.exports = router;
