@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require('cors');
 const router = express.Router();
 const { createNewGame, validateGame, addPlayerToGame } = require('../utils/gameDatabase');
 
@@ -6,7 +7,7 @@ router.get("/", (req, res) => {
   res.send({ response: "I am alive" }).status(200);
 });
 
-router.post('/createGame', async (req, res) => {
+router.post('/createGame', cors(), async (req, res) => {
   const { gameName, password } = req.body;
   
   try {
@@ -19,7 +20,7 @@ router.post('/createGame', async (req, res) => {
   
 });
 
-router.post('/addPlayerToGame', async (req, res) => {
+router.post('/addPlayerToGame', cors(), async (req, res) => {
   const { shortId, player_name, player_id } = req.body;
 
   const newPlayer = await addPlayerToGame(shortId, player_name, player_id);
@@ -27,7 +28,7 @@ router.post('/addPlayerToGame', async (req, res) => {
   res.send( newPlayer );
 })
 
-router.post('/validate', async (req, res) => {
+router.post('/validate', cors(), async (req, res) => {
   const { shortId, password } = req.body;
   
   try {
