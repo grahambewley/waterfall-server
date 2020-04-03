@@ -26,6 +26,10 @@ const GameSchema = new mongoose.Schema({
             player_name: {
                 type: String
             },
+            player_isAdmin: {
+                type: Boolean,
+                default: false
+            },
             player_id: {
                 type: String,
                 default: randomString.generate(7)

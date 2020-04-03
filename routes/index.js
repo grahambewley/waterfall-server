@@ -20,9 +20,9 @@ router.post('/createGame', async (req, res) => {
 });
 
 router.post('/addPlayerToGame', async (req, res) => {
-  const { shortId, player_name, player_id } = req.body;
+  const { shortId, player_name, player_id, player_isAdmin } = req.body;
 
-  const newPlayer = await addPlayerToGame(shortId, player_name, player_id);
+  const newPlayer = await addPlayerToGame(shortId, player_name, player_id, player_isAdmin);
   res.send( newPlayer );
 
 })

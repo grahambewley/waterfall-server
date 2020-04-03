@@ -48,7 +48,7 @@ const validateGame = async (shortId, password) => {
     }
 }
 
-const addPlayerToGame = async (shortId, player_name, player_id) => {
+const addPlayerToGame = async (shortId, player_name, player_id, player_isAdmin) => {
     
     try {
         // validate the data
@@ -71,7 +71,7 @@ const addPlayerToGame = async (shortId, player_name, player_id) => {
             }
         }
         // If not, update game to include player
-        const newPlayer = { player_name, player_id };
+        const newPlayer = { player_name, player_isAdmin, player_id };
         await Game.findOneAndUpdate(
             // This filter selects the document in general
             { shortId },
