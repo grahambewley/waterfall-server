@@ -9,6 +9,11 @@ const { findUserInGame, updateGameStatus } = require('./utils/gameDatabase');
 const app = express();
 const port = process.env.PORT || 4001;
 
+
+
+app.use(express.json());
+app.use(index);
+
 app.use(
   cors({
       credentials: true,
@@ -16,9 +21,6 @@ app.use(
   })
 );
 app.options('*', cors());
-
-app.use(express.json());
-app.use(index);
 
 const server = http.createServer(app);
 
