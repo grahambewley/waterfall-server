@@ -48,6 +48,9 @@ const GameSchema = new mongoose.Schema({
             }
         }
     ],
+    rules: [{
+        type: String
+    }],
     unplayedCards: [{
         type: String
     }],

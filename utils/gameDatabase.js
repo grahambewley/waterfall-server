@@ -88,6 +88,25 @@ const addPlayerToGame = async (shortId, player_name, player_id, player_isAdmin, 
     }
 }
 
+const addRuleToGame = async (shortId, rule) => {
+    try {
+        // update game to include rule
+        const response = await Game.findOneAndUpdate(
+            // This filter selects the document in general
+            { shortId },
+            // Add to the rules array -- addToSet adds a unique element to an array
+            // alternatively, $push would add the element no matter what
+            { $addToSet: { rules: rule } }
+        )
+        return { response };
+    } catch(error) {
+        console.error("Error adding rule to game, ", error);
+        return {
+            error: 'Error adding rule to game'
+        }
+    }
+}
+
 const removePlayer = async (shortId, player_id) => {
     try {
         // validate the data
@@ -121,9 +140,30 @@ const removePlayer = async (shortId, player_id) => {
         )
         return { updatedGame };
     } catch(error) {
-        console.error("Error adding player to game, ", error);
+        console.error("Error removing player from game, ", error);
         return {
-            error: 'Error adding player to game'
+            error: 'Error removing player from game'
+        }
+    }
+}
+
+const removeRule = async (shortId, rule) => {
+    console.log("Going to try to remove rule: ", rule);
+    try {
+        const updatedGame = await Game.findOneAndUpdate(
+            // Find cart according to user ID
+            { shortId },
+            // MongoDB operator $pull - pulls element from product array
+            { $pull: { rules: rule } },
+            // Make sure we're always getting back the updated version of the game - not the old version of the game
+            { new: true }
+        )
+        console.log("Updated game: ", updatedGame);
+        return { updatedGame };
+    } catch(error) {
+        console.error("Error removing rule from game, ", error);
+        return {
+            error: 'Error removing rule to game'
         }
     }
 }
@@ -187,7 +227,9 @@ module.exports = {
     createNewGame,
     validateGame,
     addPlayerToGame,
+    addRuleToGame,
     removePlayer,
+    removeRule,
     findUserInGame,
     updateGameStatus
 }
