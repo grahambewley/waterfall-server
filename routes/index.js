@@ -43,7 +43,6 @@ router.post('/removePlayer', async (req, res) => {
 
 router.post('/removeRule', async (req, res) => {
   const { shortId, rule } = req.body;
-  console.log("Rule received to remove ", rule);
   const updatedGame = await removeRule(shortId, rule);
   res.send( updatedGame ).status(200);
 

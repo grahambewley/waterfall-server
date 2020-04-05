@@ -148,7 +148,6 @@ const removePlayer = async (shortId, player_id) => {
 }
 
 const removeRule = async (shortId, rule) => {
-    console.log("Going to try to remove rule: ", rule);
     try {
         const updatedGame = await Game.findOneAndUpdate(
             // Find cart according to user ID
@@ -158,7 +157,6 @@ const removeRule = async (shortId, rule) => {
             // Make sure we're always getting back the updated version of the game - not the old version of the game
             { new: true }
         )
-        console.log("Updated game: ", updatedGame);
         return { updatedGame };
     } catch(error) {
         console.error("Error removing rule from game, ", error);
@@ -223,6 +221,15 @@ const updateGameStatus = async (shortId, gameStatus) => {
     }
 }
 
+const getGameStatus = async (shortId) => {
+    const gameStatus = await Game.findOne({ shortId });
+    if(gameStatus) {
+        return { gameStatus }
+    } else {
+        return { error: 'Unable to get game status' };
+    }
+}
+
 module.exports = {
     createNewGame,
     validateGame,
@@ -231,5 +238,6 @@ module.exports = {
     removePlayer,
     removeRule,
     findUserInGame,
-    updateGameStatus
+    updateGameStatus,
+    getGameStatus
 }

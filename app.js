@@ -4,7 +4,7 @@ const http = require("http");
 const socketIo = require("socket.io");
 const index = require("./routes/index");
 const { determineOutcome } = require('./utils/gameLogic');
-const { findUserInGame, updateGameStatus } = require('./utils/gameDatabase');
+const { findUserInGame, updateGameStatus, getGameStatus } = require('./utils/gameDatabase');
 
 const app = express();
 const port = process.env.PORT || 4001;
@@ -23,8 +23,6 @@ io.on("connection", socket => {
   // socket.emit('currentGameStatus', gameStatus);
   
   socket.on('takeTurn', async (data) => {
-    console.log('Card pulled: ', data.pulledCard);
-    console.log("Room to pull card in: ", data.shortId);
 
     // get gameStatus from this room
     const res = await findUserInGame(data.shortId, data.player_id);
@@ -56,6 +54,13 @@ io.on("connection", socket => {
 
     io.in(data.shortId).emit('currentGameStatus', response.gameStatus);
   });
+
+  socket.on('transmitGameStatus', async ({ shortId }) => {
+    const response = await getGameStatus(shortId);
+    if(response.gameStatus) {
+      io.in(shortId).emit('currentGameStatus', response.gameStatus);
+    } 
+  })
 
   socket.on('join', async ({ shortId, player_id, player_name }, callback) => {
     const { error, gameStatus } = await findUserInGame(shortId,  player_id);
