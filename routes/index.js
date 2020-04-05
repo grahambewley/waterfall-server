@@ -7,10 +7,10 @@ router.get("/", (req, res) => {
 });
 
 router.post('/createGame', async (req, res) => {
-  const { gameName, password } = req.body;
+  const { gameName, gameMode, password } = req.body;
   
   try {
-    const gameData = await createNewGame(gameName, password);
+    const gameData = await createNewGame(gameName, gameMode, password);
     res.send({ gameData }).status(200);
   } catch(error) {
     console.error(error);

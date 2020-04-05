@@ -3,7 +3,7 @@ const cors = require('cors');
 const http = require("http");
 const socketIo = require("socket.io");
 const index = require("./routes/index");
-const { determineOutcome } = require('./utils/gameLogic');
+const { determineOutcomeSimplified, determineOutcomeClassic } = require('./utils/gameLogic');
 const { findUserInGame, updateGameStatus, getGameStatus } = require('./utils/gameDatabase');
 
 const app = express();
@@ -40,8 +40,14 @@ io.on("connection", socket => {
     tempStats.unplayedCards = tempUnplayedCards;
     // Set the last played card
     tempStats.lastPulledCard = data.pulledCard;
+
     // Determine and set the outcome of this card
-    tempStats = determineOutcome(data.pulledCard, tempStats);
+    if(data.gameMode === 'simplified'){
+      tempStats = determineOutcomeSimplified(data.pulledCard, tempStats);
+    } else if(data.gameMode === 'classic') {
+      tempStats = determineOutcomeClassic(data.pulledCard, tempStats);
+    }
+    
     // Switch to next player's turn
     if(tempStats.turnIndex === tempStats.players.length - 1) {
       tempStats.turnIndex = 0;
