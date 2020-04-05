@@ -61,6 +61,10 @@ const GameSchema = new mongoose.Schema({
     lastPulledCardOutcome: {
         type: String,
         default: ''
+    },
+    lastPulledCardInstruction: {
+        type: String,
+        default: ''
     }
 }, {
     timestamps: true

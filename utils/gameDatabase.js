@@ -191,7 +191,7 @@ const findUserInGame = async (shortId, player_id) => {
 
 const updateGameStatus = async (shortId, gameStatus) => {
 
-    const { turnIndex, unplayedCards, lastPulledCard, lastPulledCardOutcome, players } = gameStatus
+    const { turnIndex, unplayedCards, lastPulledCard, lastPulledCardOutcome, lastPulledCardInstruction, players } = gameStatus
 
     try {
         const gameStatus = await Game.findOneAndUpdate(
@@ -204,6 +204,7 @@ const updateGameStatus = async (shortId, gameStatus) => {
                 unplayedCards, 
                 lastPulledCard, 
                 lastPulledCardOutcome,
+                lastPulledCardInstruction,
                 players
             },
             // Make sure we're always getting back the updated version of the cart - not the old version of the cart

@@ -5,43 +5,48 @@ const determineOutcome = (pulledCard, gameStatus) => {
     const suit = pulledCard.charAt(pulledCard.length - 1);
 
     let outcome = '';
+    let instruction = '';
 
     // If this is a face card...
     if(isNaN(denomination)) {
         //**** JACK = THUMB MASTER ***//
         if(denomination === 'J') {
-        outcome = `${gameStatus.players[gameStatus.turnIndex].player_name} is now Thumb Master!`;
+            outcome = 'Thumb Master!'
+            instruction = `${gameStatus.players[gameStatus.turnIndex].player_name} is now Thumb Master`;
         
-        gameStatus.players.forEach(player => {
-            player.player_isTmaster = false;
-        });
-        
-        gameStatus.players[gameStatus.turnIndex].player_isTmaster = true;
+            gameStatus.players.forEach(player => {
+                player.player_isTmaster = false;
+            });
+            
+            gameStatus.players[gameStatus.turnIndex].player_isTmaster = true;
         }
 
         //**** QUEEN = QUESTION MASTER ***//
         else if(denomination === 'Q') {
-        outcome = `${gameStatus.players[gameStatus.turnIndex].player_name} is now Question Master!`;
+            outcome = 'Question Master!';
+            instruction = `${gameStatus.players[gameStatus.turnIndex].player_name} is now Question Master`;
         
-        gameStatus.players.forEach(player => {
-            player.player_isQmaster = false;
-        });
+            gameStatus.players.forEach(player => {
+                player.player_isQmaster = false;
+            });
         
-        gameStatus.players[gameStatus.turnIndex].player_isQmaster = true;
+            gameStatus.players[gameStatus.turnIndex].player_isQmaster = true;
         }
 
         //**** KING = RULE MASTER ***//
         else if(denomination === 'K') {
-        outcome = `${gameStatus.players[gameStatus.turnIndex].player_name} makes a new Rule!`;
+            outcome = 'Rule Master!';
+            instruction = `${gameStatus.players[gameStatus.turnIndex].player_name} makes a new Rule`;
         
-        // TODO:
-        // Request rule from this player
-        // Update rules list
+            // TODO:
+            // Request rule from this player
+            // Update rules list
         }
 
         //**** ACE = WATERFALL ***//
         else if(denomination === 'A') {
-        outcome = `${gameStatus.players[gameStatus.turnIndex].player_name} starts a Waterfall!`;
+            outcome = 'Waterfall!';
+            instruction = `${gameStatus.players[gameStatus.turnIndex].player_name} starts a Waterfall`;
         }
     }
     // Otherwise this is a numbered card
@@ -58,30 +63,34 @@ const determineOutcome = (pulledCard, gameStatus) => {
 
         //**** 7 = HEAVEN ***//
         else if(parseInt(denomination) === 7) {
-        outcome = `7 is Heaven! Point to the sky!`;
+            outcome = `7 is Heaven!`;
+            instruction = 'Point to the sky!'
         }
 
         //**** 8 = DATE ***//
         else if(parseInt(denomination) === 8) {
-        outcome = `8 is Date! ${gameStatus.players[gameStatus.turnIndex].player_name} picks a date!`;
-
-        // TODO:
-        // Request date from this player
-        // Update dates in 
+            outcome = `8 is Date!`;
+            instruction = `${gameStatus.players[gameStatus.turnIndex].player_name} picks a date!`;
+            // TODO:
+            // Request date from this player
+            // Update dates in 
         }
 
         //**** 9 = RHYME ***//
         else if(parseInt(denomination) === 9) {
-        outcome = `9 is Rhyme Time! ${gameStatus.players[gameStatus.turnIndex].player_name} picks a word to rhyme!`;
+            outcome = `9 is Rhyme Time!`;
+            instruction = `${gameStatus.players[gameStatus.turnIndex].player_name} picks a word to rhyme!`
         }
 
         //**** 10 = CATEGORIES ***//
         else if(parseInt(denomination) === 10) {
-        outcome = `10 is Categories! ${gameStatus.players[gameStatus.turnIndex].player_name} picks a category!`;
+            outcome = `10 is Categories!`;
+            instruction = `${gameStatus.players[gameStatus.turnIndex].player_name} picks a category!`
         }
     }
 
     gameStatus.lastPulledCardOutcome = outcome;
+    gameStatus.lastPulledCardInstruction = instruction;
 
     return gameStatus;
 }
