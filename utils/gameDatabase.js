@@ -130,12 +130,21 @@ const removePlayer = async (shortId, player_id) => {
             }
         }
 
+        // If removing the highest-index player and it is their turn, update turnIndex to 0
+        let newTurnIndex = game.turnIndex;
+        if(game.turnIndex === (game.players.length - 1)) {
+            newTurnIndex = 0;
+        }
+
         const updatedGame = await Game.findOneAndUpdate(
             // Find cart according to user ID
             { shortId },
             // MongoDB operator $pull - pulls element from product array
             // "Pull from products array where the product field is set to the product ID"
-            { $pull: { players: { player_id: player_id } } },
+            { 
+                $pull: { players: { player_id: player_id } },
+                turnIndex: newTurnIndex
+            },
             // Make sure we're always getting back the updated version of the cart - not the old version of the cart
             { new: true }
         )
