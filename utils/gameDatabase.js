@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const Game =  require('../models/Game');
 const connectDb = require('./connectDb');
 const randomString = require('randomstring');
+const arrayMove = require('array-move');
 
 connectDb();
 
@@ -176,6 +177,58 @@ const removeRule = async (shortId, rule) => {
     }
 }
 
+const movePlayerUp = async (shortId, player_id) => {
+    try {
+        const game = await Game.findOne({ shortId });
+        let tempPlayers = game.players;
+        const playerIndex = tempPlayers.findIndex(player => {
+            return player.player_id === player_id;
+        })
+
+        tempPlayers = arrayMove(tempPlayers, playerIndex, playerIndex - 1);
+        console.log("Players after move: ", tempPlayers);
+
+        // update game to new players array
+        const response = await Game.findOneAndUpdate(
+            { shortId },
+            { players: tempPlayers },
+            { new: true }
+        )
+        return { response }
+    } catch(error) {
+        console.error(error);
+        return { error: 'Unexpected error moving user' };
+    }
+}
+
+const movePlayerDown = async (shortId, player_id) => {
+    try {
+        const game = await Game.findOne({ shortId });
+        let tempPlayers = game.players;
+        const playerIndex = tempPlayers.findIndex(player => {
+            return player.player_id === player_id;
+        })
+
+        if(playerIndex === (tempPlayers.length - 1)) {
+            tempPlayers = arrayMove(tempPlayers, -1, 0);
+        } else {
+            tempPlayers = arrayMove(tempPlayers, playerIndex, playerIndex + 1);
+        }
+        console.log("Players after move: ", tempPlayers);
+
+        // update game to new players array
+        const response = await Game.findOneAndUpdate(
+            { shortId },
+            { players: tempPlayers },
+            { new: true }
+        )
+        return { response }
+    } catch(error) {
+        console.error(error);
+        return { error: 'Unexpected error moving user' };
+    }
+}
+
 const findUserInGame = async (shortId, player_id) => {
     try {
         const game = await Game.findOne({ shortId });
@@ -247,6 +300,8 @@ module.exports = {
     addPlayerToGame,
     addRuleToGame,
     removePlayer,
+    movePlayerUp,
+    movePlayerDown,
     removeRule,
     findUserInGame,
     updateGameStatus,
