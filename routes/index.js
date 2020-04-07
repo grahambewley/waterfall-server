@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { createNewGame, validateGame, addPlayerToGame, addRuleToGame, removePlayer, movePlayerUp, movePlayerDown, removeRule } = require('../utils/gameDatabase');
+const { createNewGame, validateGame, addPlayerToGame, addRuleToGame, removePlayer, renamePlayer, movePlayerUp, movePlayerDown, removeRule } = require('../utils/gameDatabase');
 
 router.get("/", (req, res) => {
   res.send({ response: "I am alive" }).status(200);
@@ -60,11 +60,19 @@ router.post('/validate', async (req, res) => {
   }
 });
 
+router.post('/renamePlayer', async(req, res) => {
+  const { shortId, player_id, newName } = req.body;
+  console.log("Renaming player " + player_id + " in game " + shortId + " to " + newName);
+  const updatedGame = await renamePlayer(shortId, player_id, newName);
+  res.send(updatedGame).status(200);
+});
+
 router.post('/movePlayerDown', async(req, res) => {
   const { shortId, player_id } = req.body;
   const updatedGame = await movePlayerDown(shortId, player_id);
   res.send(updatedGame).status(200);
 });
+
 router.post('/movePlayerUp', async(req, res) => {
   const { shortId, player_id } = req.body;
   const updatedGame = await movePlayerUp(shortId, player_id);

@@ -177,6 +177,28 @@ const removeRule = async (shortId, rule) => {
     }
 }
 
+const renamePlayer = async (shortId, player_id, newName) => {
+    try {
+        const game = await Game.findOne({ shortId });
+        let tempPlayers = game.players;
+        const playerIndex = tempPlayers.findIndex(player => {
+            return player.player_id === player_id;
+        })
+
+        tempPlayers[playerIndex].player_name = newName;
+
+        // update game to new players array
+        const response = await Game.findOneAndUpdate(
+            { shortId },
+            { players: tempPlayers },
+            { new: true }
+        )
+        return { response }
+    } catch(error) {
+        console.error(error);
+        return { error: 'Unexpected error renaming player' }
+    }
+}
 const movePlayerUp = async (shortId, player_id) => {
     try {
         const game = await Game.findOne({ shortId });
@@ -300,6 +322,7 @@ module.exports = {
     addPlayerToGame,
     addRuleToGame,
     removePlayer,
+    renamePlayer,
     movePlayerUp,
     movePlayerDown,
     removeRule,
