@@ -31,6 +31,12 @@ io.on("connection", socket => {
       console.log(`Error pulling card from ${data.shortId} for user ${data.player_id}`);
       return error;
     }
+
+    // If there are 0 cards left, emit a 'gameOver' event
+    if(res.gameStatus.unplayedCards.length === 0) {
+      return io.in(shortId).emit('gameOver', res.gameStatus);
+    }
+
     let tempStats = res.gameStatus;
 
     // Remove this card from the deck
@@ -58,6 +64,7 @@ io.on("connection", socket => {
     // Set updated game stats
     const response = await updateGameStatus(data.shortId, tempStats);
 
+    
     io.in(data.shortId).emit('currentGameStatus', response.gameStatus);
   });
 
