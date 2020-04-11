@@ -335,6 +335,13 @@ const playAgain = async (shortId) => {
             'AH', 'AD', 'AC', 'AS'
         ];
         
+        // Remove any thumb masters or rule masters
+        let tempPlayers = tempGame.players;
+        tempPlayers.forEach(player => {
+            player.player_isTmaster = false;
+            player.player_isQmaster = false;
+        });
+
         // Switch to next player's turn
         if(tempGame.turnIndex === tempGame.players.length - 1) {
             tempGame.turnIndex = 0;
@@ -350,7 +357,9 @@ const playAgain = async (shortId) => {
                 turnIndex: tempGame.turnIndex,
                 lastPulledCard: '',
                 lastPulledCardOutcome: '',
-                lastPulledCardInstruction: ''
+                lastPulledCardInstruction: '',
+                players: tempPlayers,
+                rules: []
             },
             { new: true }
         )
