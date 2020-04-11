@@ -316,6 +316,51 @@ const getGameStatus = async (shortId) => {
     }
 }
 
+const playAgain = async (shortId) => {
+    try {
+        let tempGame = await Game.findOne({ shortId });
+        tempGame.unplayedCards = [
+            '2H', '2D', '2C', '2S',
+            '3H', '3D', '3C', '3S',
+            '4H', '4D', '4C', '4S',
+            '5H', '5D', '5C', '5S',
+            '6H', '6D', '6C', '6S',
+            '7H', '7D', '7C', '7S',
+            '8H', '8D', '8C', '8S',
+            '9H', '9D', '9C', '9S',
+            '10H', '10D', '10C', '10S',
+            'JH', 'JD', 'JC', 'JS',
+            'QH', 'QD', 'QC', 'QS',
+            'KH', 'KD', 'KC', 'KS',
+            'AH', 'AD', 'AC', 'AS'
+        ];
+        
+        // Switch to next player's turn
+        if(tempGame.turnIndex === tempGame.players.length - 1) {
+            tempGame.turnIndex = 0;
+        } else {
+            tempGame.turnIndex = tempGame.turnIndex + 1;
+        }
+
+        // update game to new players array
+        const gameStatus = await Game.findOneAndUpdate(
+            { shortId },
+            { 
+                unplayedCards: tempGame.unplayedCards,
+                turnIndex: tempGame.turnIndex,
+                lastPulledCard: '',
+                lastPulledCardOutcome: '',
+                lastPulledCardInstruction: ''
+            },
+            { new: true }
+        )
+        return { gameStatus };
+    } catch(error) {
+        console.error(error);
+        return { error: 'Unexpected error renaming player' }
+    }
+}
+
 module.exports = {
     createNewGame,
     validateGame,
@@ -328,5 +373,6 @@ module.exports = {
     removeRule,
     findUserInGame,
     updateGameStatus,
-    getGameStatus
+    getGameStatus,
+    playAgain
 }
