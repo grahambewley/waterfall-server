@@ -208,7 +208,6 @@ const movePlayerUp = async (shortId, player_id) => {
         })
 
         tempPlayers = arrayMove(tempPlayers, playerIndex, playerIndex - 1);
-        console.log("Players after move: ", tempPlayers);
 
         // update game to new players array
         const response = await Game.findOneAndUpdate(
@@ -236,7 +235,6 @@ const movePlayerDown = async (shortId, player_id) => {
         } else {
             tempPlayers = arrayMove(tempPlayers, playerIndex, playerIndex + 1);
         }
-        console.log("Players after move: ", tempPlayers);
 
         // update game to new players array
         const response = await Game.findOneAndUpdate(
